@@ -1,0 +1,2 @@
+# ignore MINIX-LCOM.vdi, too large for GitHub
+*.vdi
