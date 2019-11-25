@@ -1,2 +1,5 @@
-# ignore MINIX-LCOM.vdi, too large for GitHub
+# Ignore MINIX-LCOM.vdi, too large for GitHub
 *.vdi
+
+# Ignore the proj folder
+/proj/*
