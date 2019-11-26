@@ -7,25 +7,25 @@
   < sys_irqsetpolicy(1, 3, addr: 0x82301cc [10]) -> (ret: 0)
   @graphics.c:107, m_vbe_get_mode_info
     lm_alloc(sizeof(vbe_mode_info_t), &memry)
-  < lm_alloc(256, addr: 0xeffff6d0 [phys: 0x0008f000, virt: 0xefb8c000, size: 256 bytes]) -> (ret: 0xefb8c000)
+  < lm_alloc(256, addr: 0xeffff6d8 [phys: 0x0008f000, virt: 0xefb8c000, size: 256 bytes]) -> (ret: 0xefb8c000)
   @graphics.c:118, m_vbe_get_mode_info
     sys_int86(&reg86)
-  > sys_int86(addr: 0xeffff6a8 [AX: 4f01, BX: 0000, CX: 0105, DX: 0000, ES: 8000, DI: f000])
-  < sys_int86(addr: 0xeffff6a8 [AX: 004f, BX: 0000, CX: 0105, DX: 0000, ES: 8000, DI: f000]) -> (ret: 0)
+  > sys_int86(addr: 0xeffff6b0 [AX: 4f01, BX: 0000, CX: 0105, DX: 0000, ES: 8000, DI: f000])
+  < sys_int86(addr: 0xeffff6b0 [AX: 004f, BX: 0000, CX: 0105, DX: 0000, ES: 8000, DI: f000]) -> (ret: 0)
   @graphics.c:123, m_vbe_get_mode_info
     lm_free(&memry)
-  < lm_free(addr: 0xeffff6d0 [phys: 0x0008f000, virt: 0xefb8c000, size: 256 bytes]) -> (ret: 1)
+  < lm_free(addr: 0xeffff6d8 [phys: 0x0008f000, virt: 0xefb8c000, size: 256 bytes]) -> (ret: 1)
   @graphics.c:29, allow_memory_mapping
     sys_privctl(SELF, SYS_PRIV_ADD_MEM, mr)
-  > sys_privctl(SELF, SYS_PRIV_ADD_MEM, addr: 0xeffff738 [0xe0000000 - 0xe00c0000 <768 KiB>])
+  > sys_privctl(SELF, SYS_PRIV_ADD_MEM, addr: 0xeffff740 [0xe0000000 - 0xe00c0000 <768 KiB>])
   < sys_privctl(SELF, SYS_PRIV_ADD_MEM, mr) -> (ret: 0)
   @graphics.c:33, allow_memory_mapping
     vm_map_phys(SELF, (void *) mr->mr_base, vram_size)
   < vm_map_phys(SELF, addr: 0xe0000000, 768 KiB) -> (ret: 0xef93b000)
   @graphics.c:14, set_graphics_mode
     sys_int86(reg86)
-  > sys_int86(addr: 0xeffff740 [AX: 4f02, BX: 4105, CX: 0000, DX: 0000, ES: 0000, DI: 0000])
-  < sys_int86(addr: 0xeffff740 [AX: 004f, BX: 4105, CX: 0000, DX: 0000, ES: 0000, DI: 0000]) -> (ret: 0)
+  > sys_int86(addr: 0xeffff748 [AX: 4f02, BX: 4105, CX: 0000, DX: 0000, ES: 0000, DI: 0000])
+  < sys_int86(addr: 0xeffff748 [AX: 004f, BX: 4105, CX: 0000, DX: 0000, ES: 0000, DI: 0000]) -> (ret: 0)
   @game.c:36, draw_board
     vg_draw_rectangle(xi + SQUARE_SIZE * i, yi + SQUARE_SIZE * j, SQUARE_SIZE, SQUARE_SIZE, (i + j) % 2 ? SQUARE_COLOR_1 : SQUARE_COLOR_2)
   > vg_draw_rectangle(216, 88, 74, 74, 0x00000037 [55])
@@ -14626,12 +14626,12 @@
     kbc_ih()
     @utils.c:31, util_sys_inb
       sys_inb(port, &val)
-    > sys_inb(0x64, addr: 0xeffff6c0)
-    < sys_inb(0x64, addr: 0xeffff6c0 [0x1d = 0b00011101])
+    > sys_inb(0x64, addr: 0xeffff6c8)
+    < sys_inb(0x64, addr: 0xeffff6c8 [0x1d = 0b00011101])
     @utils.c:43, util_sys_in2b
       sys_inb(port, &val)
-    > sys_inb(0x60, addr: 0xeffff6c0)
-    < sys_inb(0x60, addr: 0xeffff6c0 [0x01 = 0b00000001])
+    > sys_inb(0x60, addr: 0xeffff6c8)
+    < sys_inb(0x60, addr: 0xeffff6c8 [0x01 = 0b00000001])
   @main.c:49, proj_main_loop
     driver_receive(ANY, &msg, &ipc_status)
   > driver_receive(ANY, addr: 0x824ce70, addr: 0x824ce6c)
@@ -14640,12 +14640,12 @@
     kbc_ih()
     @utils.c:31, util_sys_inb
       sys_inb(port, &val)
-    > sys_inb(0x64, addr: 0xeffff6c0)
-    < sys_inb(0x64, addr: 0xeffff6c0 [0x1d = 0b00011101])
+    > sys_inb(0x64, addr: 0xeffff6c8)
+    < sys_inb(0x64, addr: 0xeffff6c8 [0x1d = 0b00011101])
     @utils.c:43, util_sys_in2b
       sys_inb(port, &val)
-    > sys_inb(0x60, addr: 0xeffff6c0)
-    < sys_inb(0x60, addr: 0xeffff6c0 [0x81 = 0b10000001])
+    > sys_inb(0x60, addr: 0xeffff6c8)
+    < sys_inb(0x60, addr: 0xeffff6c8 [0x81 = 0b10000001])
   @kbd.c:43, kbd_unsubscribe_int
     sys_irqrmpolicy(&hook_id_kbd)
   > sys_irqrmpolicy(addr: 0x82301cc [10])

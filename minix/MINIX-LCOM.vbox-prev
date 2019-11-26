@@ -14,7 +14,7 @@
     </MediaRegistry>
     <ExtraData>
       <ExtraDataItem name="GUI/LastCloseAction" value="PowerOff"/>
-      <ExtraDataItem name="GUI/LastNormalWindowPosition" value="400,188,640,524"/>
+      <ExtraDataItem name="GUI/LastNormalWindowPosition" value="189,88,720,444"/>
       <ExtraDataItem name="GUI/RestrictedStatusBarIndicators" value="FloppyDisks,USB,VideoCapture"/>
     </ExtraData>
     <Hardware>
