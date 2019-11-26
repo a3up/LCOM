@@ -2,4 +2,4 @@
 *.vdi
 
 # Ignore the proj folder
-/proj/*
+/labs/proj/*
