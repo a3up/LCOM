@@ -1,7 +1,28 @@
 #include <lcom/lcf.h>
-#include <lcom/timer.h>
 #include <stdbool.h>
+#include "timer.h"
 #include "macros/timer.h"
+#include "macros/assert.h"
+
+
+uint8_t byte(void *pointer, uint8_t b) {
+    uint8_t *initial = pointer;
+    return *(initial + b);
+}
+
+int read_back_command(uint8_t command) {
+    assert(sys_outb(TIMER_CTRL, RB_COMMAND | command), "Error writing read-back command in timer control");
+    return 0;
+}
+
+int control_word_command(uint8_t timer, uint8_t command) {
+    assert(sys_outb(TIMER_CTRL, (timer << 6) | command), "Error writing control word to timer control");
+    return 0;
+}
+
+/// --------------------------------------------------------------------------------
+///                               Information of timer
+/// --------------------------------------------------------------------------------
 
 enum timer_init_mode {
     INVALID_ACCESS_TYPE, LSB, MSB, LSB_followed_by_MSB
@@ -17,77 +38,100 @@ struct timer_info {
     enum timer_init_mode init_mode;
     uint8_t prog_mode;
     enum timer_base base;
+    uint8_t status;
 };
 
-int timer_get_info(uint8_t timer, struct timer_info *info) {
-    if (timer > 2)
-        return 1;
-    if (write_command(RB_COMMAND | RB_COUNT | RB_TIMER(timer)))
-        return 2;
-    uint32_t status_byte;
-    if (sys_inb(TIMER_0 + timer, &status_byte))
-        return 3;
-    info->output     = status_byte & ST_OUTPUT;
-    info->null_count = status_byte & ST_NULL_COUNT;
-    info->init_mode  = status_byte & ST_INIT_MODE;
-    info->prog_mode  = status_byte & ST_PROG_MODE;
-    info->base       = status_byte & ST_BCD;
-}
-
-enum timer_init (timer_st_get_init_mode)(uint8_t st) {
-    st &= ST_INIT_MODE;
-    switch (st) {
-        case LSB_MODE:
-            return LSB_only;
-        case MSB_MODE:
-            return MSB_only;
-        case LSB_MSB_MODE:
-            return MSB_after_LSB;
-        default:
-            return INVAL_val;
-    }
-}
-
-int write_command(uint8_t command) {
-    return sys_outb(TIMER_CTRL, command);
-}
-
-int (timer_get_conf)(uint8_t timer, uint8_t *st) {
-    if (timer > 2)
-        return 1;
-    if (write_command(RB_COMMAND | RB_COUNT | RB_TIMER(timer)))
-        return 2;
-    unsigned aux;
-    if (sys_inb(TIMER_0 + timer, &aux))
-        return 3;
-    *st = aux;
+int timer_get_status(uint8_t timer, uint8_t *status) {
+    read_back_command(RB_COUNT | RB_TIMER(timer));
+    uint32_t aux;
+    assert(sys_inb(TIMER_0 + timer, &aux), "Error reading status byte from timer");
+    *status = (uint8_t) aux;
     return 0;
 }
 
-int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field field) {
-    union timer_status_field_val val;                                   // Declaring a variable to give the field argument to timer_print_config
-    if (timer > 2)                                                      // Timer must be 0, 1 or 2
-        return 1;                                                         // Invalid timer error
-    switch (field) {                                                    // Decision based on which field to display
-        case tsf_all:                                                     // Timer configuration/status mode
-            val.byte = st;                                                  // Changes val to the entire status
+int timer_get_info(uint8_t timer, struct timer_info *info) {
+    uint8_t status_byte;
+    if (timer_get_status(timer, &status_byte))
+        return 1;
+    info->output = status_byte & ST_OUTPUT;
+    info->null_count = status_byte & ST_NULL_COUNT;
+    info->init_mode = (status_byte & ST_INIT_MODE) >> 4;
+    info->prog_mode = (status_byte & ST_PROG_MODE) >> 1;
+    if (info->prog_mode > 5)
+        info->prog_mode -= 4;
+    info->base = status_byte & ST_BCD;
+    info->status = status_byte;
+    return 0;
+}
+
+void timer_print_info(struct timer_info *info) {
+    printf("output     : %s\n", (info->output) ? "TRUE" : "FALSE");
+    printf("null_count : %s\n", (info->null_count) ? "TRUE" : "FALSE");
+    printf("init_mode  : ");
+    switch (info->init_mode) {
+        case INVALID_ACCESS_TYPE:
+            printf("INVALID\n");
             break;
-        case tsf_initial:                                                 // Timer initialization mode
-            val.in_mode = timer_st_get_init_mode(st);                       // Changes val to the initialization mode
+        case LSB:
+            printf("LSB\n");
             break;
-        case tsf_mode:                                                    // Timer counting mode
-            st &= BIT(3) | BIT(2) | BIT(1);                                     // Applying a mask to the status
-            val.count_mode = st >> 1;                                       // Changes val to the counting mode
-            if (val.count_mode > 5)                                         // Operating mode exceptions
-                val.count_mode -= 4;                                          // Handling the exceptions
+        case MSB:
+            printf("MSB\n");
             break;
-        case tsf_base:                                                    // Timer counting base mode
-            st &= BIT(0);                                                   // Applying a mask to the status
-            val.bcd = (st ==
-                       ST_BCD);                                    // Changes val to true if BCD and false if Binary
+        case LSB_followed_by_MSB:
+            printf("LSB_MSB\n");
+            break;
     }
-    if (timer_print_config(timer, field,
-                           val))                           // Calls the timer_print_config function with the right parameter
-        return 2;                                                         // timer_print_config call not successful
-    return 0;                                                           // Successful operation
+    printf("prog_mode  : 0x%x\n", info->prog_mode);
+    printf("base       : %s\n", (info->base) ? "DECIMAL" : "BINARY");
+    printf("status_byte: 0x%x\n", info->status);
+}
+
+/// --------------------------------------------------------------------------------
+///                                Settings of timer
+/// --------------------------------------------------------------------------------
+
+int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
+    assert(freq > TIMER_FREQ || freq == 0, "Invalid Frequency");
+    uint8_t status;
+    if (timer_get_status(timer, &status))
+        return 1;
+    status &= ST_PROG_MODE | ST_BCD;
+    if (control_word_command(timer, LSB_MSB_MODE | status))
+        return 1;
+    uint32_t ini_val = TIMER_FREQ / freq;
+    sys_outb(TIMER_0 + timer, byte(&ini_val, 0));
+    sys_outb(TIMER_0 + timer, byte(&ini_val, 1));
+    return 0;
+}
+
+/// --------------------------------------------------------------------------------
+///                            Functions only for the lab
+/// --------------------------------------------------------------------------------
+
+union timer_status_field_val timer_isolate_info(struct timer_info *info, enum timer_status_field field) {
+    union timer_status_field_val ret;
+    switch (field) {
+        case tsf_all:
+            ret.byte = info->status;
+            break;
+        case tsf_initial:
+            ret.in_mode = (enum timer_init) info->init_mode;
+            break;
+        case tsf_mode:
+            ret.count_mode = info->prog_mode;
+            break;
+        case tsf_base:
+            ret.bcd = info->base;
+            break;
+    }
+    return ret;
+}
+
+int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field field) {
+    struct timer_info info;
+    timer_get_info(timer, &info);
+    union timer_status_field_val val = timer_isolate_info(&info, field);
+    timer_print_config(timer, field, val);
+    return 0;
 }

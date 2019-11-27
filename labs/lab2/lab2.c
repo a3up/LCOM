@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "timer.h"
+
 int main(int argc, char *argv[]) {
     // sets the language of LCF messages (can be either EN-US or PT-PT)
     lcf_set_language("EN-US");
@@ -29,16 +31,14 @@ int main(int argc, char *argv[]) {
 
 int (timer_test_read_config)(uint8_t timer, enum timer_status_field field) {
     uint8_t status;
-    timer_get_conf(timer, &status);
+    timer_get_status(timer, &status);
     timer_display_conf(timer, status, field);
-    return 1;
+    return 0;
 }
 
 int (timer_test_time_base)(uint8_t timer, uint32_t freq) {
-    /* To be implemented by the students */
-    printf("%s is not yet implemented!\n", __func__);
-
-    return 1;
+    timer_set_frequency(timer, freq);
+    return 0;
 }
 
 int (timer_test_int)(uint8_t time) {
