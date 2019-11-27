@@ -2,7 +2,7 @@
 PROG=lab2
 
 # source code files to be compiled
-SRCS = lab2.c timer.c
+SRCS = lab2.c timer.c interrupts.c
 
 # additional compilation flags
 # "-Wall -Wextra -Werror -I . -std=c11 -Wno-unused-parameter" are already set

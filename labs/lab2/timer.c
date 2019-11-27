@@ -2,8 +2,10 @@
 #include <stdbool.h>
 #include "timer.h"
 #include "macros/timer.h"
-#include "macros/assert.h"
+#include "macros/error.h"
 
+static int hook_id = TIMER_IRQ;
+static unsigned timer_counter = 0;
 
 uint8_t byte(void *pointer, uint8_t b) {
     uint8_t *initial = pointer;
@@ -11,17 +13,17 @@ uint8_t byte(void *pointer, uint8_t b) {
 }
 
 int read_back_command(uint8_t command) {
-    assert(sys_outb(TIMER_CTRL, RB_COMMAND | command), "Error writing read-back command in timer control");
+    error(sys_outb(TIMER_CTRL, RB_COMMAND | command), "Error writing read-back command in timer control");
     return 0;
 }
 
 int control_word_command(uint8_t timer, uint8_t command) {
-    assert(sys_outb(TIMER_CTRL, (timer << 6) | command), "Error writing control word to timer control");
+    error(sys_outb(TIMER_CTRL, (timer << 6) | command), "Error writing control word to timer control");
     return 0;
 }
 
 /// --------------------------------------------------------------------------------
-///                               Information of timer
+///                                   Information
 /// --------------------------------------------------------------------------------
 
 enum timer_init_mode {
@@ -44,7 +46,7 @@ struct timer_info {
 int timer_get_status(uint8_t timer, uint8_t *status) {
     read_back_command(RB_COUNT | RB_TIMER(timer));
     uint32_t aux;
-    assert(sys_inb(TIMER_0 + timer, &aux), "Error reading status byte from timer");
+    error(sys_inb(TIMER_0 + timer, &aux), "Error reading status byte from timer");
     *status = (uint8_t) aux;
     return 0;
 }
@@ -88,11 +90,11 @@ void timer_print_info(struct timer_info *info) {
 }
 
 /// --------------------------------------------------------------------------------
-///                                Settings of timer
+///                                     Settings
 /// --------------------------------------------------------------------------------
 
 int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
-    assert(freq > TIMER_FREQ || freq == 0, "Invalid Frequency");
+    error(freq > TIMER_FREQ || freq == 0, "Invalid frequency");
     uint8_t status;
     if (timer_get_status(timer, &status))
         return 1;
@@ -100,9 +102,33 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
     if (control_word_command(timer, LSB_MSB_MODE | status))
         return 1;
     uint32_t ini_val = TIMER_FREQ / freq;
-    sys_outb(TIMER_0 + timer, byte(&ini_val, 0));
-    sys_outb(TIMER_0 + timer, byte(&ini_val, 1));
+    error(ini_val > 0xffff, "Invalid initial value");
+    error(sys_outb(TIMER_0 + timer, byte(&ini_val, 0)), "Error writing LSB to timer");
+    error(sys_outb(TIMER_0 + timer, byte(&ini_val, 1)), "Error writing MSB to timer");
     return 0;
+}
+
+/// --------------------------------------------------------------------------------
+///                                  Interruptions
+/// --------------------------------------------------------------------------------
+
+int (timer_subscribe_int)(uint8_t *bit_no) {
+    *bit_no = BIT(hook_id);
+    error(sys_irqsetpolicy(TIMER_IRQ, IRQ_REENABLE, &hook_id), "Error on timer interruptions subscription");
+    return 0;
+}
+
+int (timer_unsubscribe_int)() {
+    error(sys_irqrmpolicy(&hook_id), "Error on timer interruptions unsubscription");
+    return 0;
+}
+
+unsigned timer_get_counter(){
+    return timer_counter;
+}
+
+void (timer_int_handler)() {
+    timer_counter++;
 }
 
 /// --------------------------------------------------------------------------------

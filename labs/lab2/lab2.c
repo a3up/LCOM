@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "interrupts.h"
 #include "timer.h"
 
 int main(int argc, char *argv[]) {
@@ -37,13 +38,22 @@ int (timer_test_read_config)(uint8_t timer, enum timer_status_field field) {
 }
 
 int (timer_test_time_base)(uint8_t timer, uint32_t freq) {
-    timer_set_frequency(timer, freq);
-    return 0;
+    return timer_set_frequency(timer, freq);
 }
 
 int (timer_test_int)(uint8_t time) {
-    /* To be implemented by the students */
-    printf("%s is not yet implemented!\n", __func__);
-
-    return 1;
+    subscribe_ints();
+    uint8_t frequency = 60;
+    timer_set_frequency(0, frequency);
+    while (timer_get_counter() < frequency * time) {
+        if (request_message())
+            continue;
+        if (received_message(TIMER)) {
+            timer_int_handler();
+            if(timer_get_counter() % frequency == 0)
+                timer_print_elapsed_time();
+        }
+    }
+    unsubscribe_ints();
+    return 0;
 }
