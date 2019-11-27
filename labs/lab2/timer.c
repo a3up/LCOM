@@ -4,9 +4,6 @@
 #include "macros/timer.h"
 #include "macros/error.h"
 
-static int hook_id = TIMER_IRQ;
-static unsigned timer_counter = 0;
-
 uint8_t byte(void *pointer, uint8_t b) {
     uint8_t *initial = pointer;
     return *(initial + b);
@@ -112,6 +109,8 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
 ///                                  Interruptions
 /// --------------------------------------------------------------------------------
 
+static int hook_id = TIMER_IRQ;
+
 int (timer_subscribe_int)(uint8_t *bit_no) {
     *bit_no = BIT(hook_id);
     error(sys_irqsetpolicy(TIMER_IRQ, IRQ_REENABLE, &hook_id), "Error on timer interruptions subscription");
@@ -123,7 +122,9 @@ int (timer_unsubscribe_int)() {
     return 0;
 }
 
-unsigned timer_get_counter(){
+static unsigned timer_counter = 0;
+
+unsigned timer_get_counter() {
     return timer_counter;
 }
 

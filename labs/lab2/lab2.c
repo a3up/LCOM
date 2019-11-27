@@ -32,7 +32,8 @@ int main(int argc, char *argv[]) {
 
 int (timer_test_read_config)(uint8_t timer, enum timer_status_field field) {
     uint8_t status;
-    timer_get_status(timer, &status);
+    if(timer_get_status(timer, &status))
+        return 1;
     timer_display_conf(timer, status, field);
     return 0;
 }
@@ -44,7 +45,8 @@ int (timer_test_time_base)(uint8_t timer, uint32_t freq) {
 int (timer_test_int)(uint8_t time) {
     subscribe_ints();
     uint8_t frequency = 60;
-    timer_set_frequency(0, frequency);
+    if(timer_set_frequency(0, frequency))
+        return 1;
     while (timer_get_counter() < frequency * time) {
         if (request_message())
             continue;
