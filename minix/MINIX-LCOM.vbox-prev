@@ -32,7 +32,7 @@
         <Order position="4" device="None"/>
       </Boot>
       <Display VRAMSize="64"/>
-      <VideoCapture screens="1" file="." fps="25"/>
+      <VideoCapture screens="1" file="." fps="25" options="ac_enabled=false"/>
       <RemoteDisplay enabled="false"/>
       <Network>
         <Adapter slot="0" enabled="true" MACAddress="080027C515B7" cable="true" type="Am79C973">
@@ -55,7 +55,7 @@
       </Network>
       <AudioAdapter driver="Pulse" enabled="true" enabledIn="false" enabledOut="false"/>
       <SharedFolders>
-        <SharedFolder name="shared" hostPath="/home/pedro/aulas/mieic/lcom/lcom/MINIX-LCOM/shared" writable="true" autoMount="false"/>
+        <SharedFolder name="shared" hostPath="/tmp/hme/LCOM/labs" writable="true" autoMount="false"/>
       </SharedFolders>
       <GuestProperties>
         <GuestProperty name="/VirtualBox/HostInfo/GUI/LanguageID" value="en_US" timestamp="1568018121384023000" flags=""/>

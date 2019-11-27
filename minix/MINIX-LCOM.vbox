@@ -6,7 +6,7 @@
 ** Use VBoxManage or the VirtualBox Manager GUI to make changes.
 -->
 <VirtualBox xmlns="http://www.virtualbox.org/" version="1.15-linux">
-  <Machine uuid="{18e39643-0be8-424b-a7dd-e5e81b32c9a1}" name="MINIX-LCOM" OSType="Other" snapshotFolder="Snapshots" lastStateChange="2019-11-27T15:32:28Z">
+  <Machine uuid="{18e39643-0be8-424b-a7dd-e5e81b32c9a1}" name="MINIX-LCOM" OSType="Other" snapshotFolder="Snapshots" lastStateChange="2019-11-27T19:06:32Z">
     <MediaRegistry>
       <HardDisks>
         <HardDisk uuid="{16568188-0230-4671-af54-6f3161215e65}" location="MINIX-LCOM.vdi" format="VDI" type="Normal"/>
