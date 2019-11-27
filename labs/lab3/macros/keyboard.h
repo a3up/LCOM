@@ -11,7 +11,7 @@
 /// Keyboard ports
 #define STATUS_REGISTER         0x64
 #define COMMAND_REGISTER        0x64
-#define OUT_BUFFER              0x64
+#define OUT_BUFFER              0x60
 #define IN_BUFFER               0x60
 
 /// Status byte

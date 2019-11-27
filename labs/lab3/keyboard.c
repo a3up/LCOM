@@ -20,7 +20,8 @@ int kbc_get_status() {
 
 int kbc_write_command(uint32_t command) {
     for (char i = 0; i < MAX_TRIES; ++i) {
-        kbc_get_status();
+        if (kbc_get_status())
+            continue;
         if (status & FULL_IN_BUFFER) {
             error(sys_outb(COMMAND_REGISTER, command), "Error writing command to register");
             return 0;
@@ -32,7 +33,8 @@ int kbc_write_command(uint32_t command) {
 
 int kbc_read_return(uint16_t *data) {
     for (char i = 0; i < MAX_TRIES; ++i) {
-        kbc_get_status();
+        if (kbc_get_status())
+            continue;
         if (status & FULL_OUT_BUFFER) {
             uint32_t aux;
             error(sys_inb(OUT_BUFFER, &aux), "Error reading output buffer");
@@ -48,12 +50,6 @@ int kbc_read_return(uint16_t *data) {
 ///                                  Interruptions
 /// --------------------------------------------------------------------------------
 
-struct scancode {
-    bool mode;
-    uint8_t size;
-    uint8_t bytes[2];
-};
-
 int keyboard_hook_id = KEYBOARD_IRQ_LINE;
 
 int keyboard_subscribe_int(uint8_t *bit_no) {
@@ -68,6 +64,12 @@ int keyboard_unsubscribe_int() {
     return 0;
 }
 
+struct scancode {
+    bool mode;
+    uint8_t size;
+    uint8_t bytes[2];
+};
+
 struct scancode last_scancode;
 
 uint16_t keyboard_get_last_scancode() {
@@ -75,15 +77,14 @@ uint16_t keyboard_get_last_scancode() {
 }
 
 void keyboard_int_handler() {
-    if (kbc_get_status())
-        return;
     uint16_t scancode;
-    if(kbc_read_return(&scancode))
+    if (kbc_read_return(&scancode))
         return;
     last_scancode.mode = (scancode & BREAKCODE) ? false : true;
     last_scancode.bytes[0] = scancode;
     last_scancode.bytes[1] = scancode >> 8;
     last_scancode.size = (last_scancode.bytes[1] == LONG_SCANCODE) ? 2 : 1;
+    keyboard_print_last_scancode();
 }
 
 /// --------------------------------------------------------------------------------

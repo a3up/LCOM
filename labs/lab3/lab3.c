@@ -32,23 +32,22 @@ int main(int argc, char *argv[]) {
 }
 
 int (kbd_test_scan)() {
-    subscribe_ints();
-    while (keyboard_get_last_scancode() != ESC_BREAKCODE) {
+    subscribe_ints(KEYBOARD);
+    do {
         if (request_message())
             continue;
         if (received_message(KEYBOARD)) {
             keyboard_int_handler();
-            keyboard_print_last_scancode();
         }
-    }
-    unsubscribe_ints();
+    } while (keyboard_get_last_scancode() != ESC_BREAKCODE);
+    unsubscribe_ints(KEYBOARD);
     return 0;
 }
 
 int (kbd_test_poll)() {
-    /* To be completed by the students */
-    printf("%s is not yet implemented!\n", __func__);
-
+    do {
+        keyboard_int_handler();
+    } while (keyboard_get_last_scancode() != ESC_BREAKCODE);
     return 1;
 }
 

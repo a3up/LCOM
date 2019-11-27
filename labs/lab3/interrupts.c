@@ -33,15 +33,19 @@ bool received_message(enum dispositive dispositive) {
 }
 
 /// Subscribe interruptions of devices
-int subscribe_ints() {
-    error(timer_subscribe_int(&timer_irq_set), "Error subscribing timer interruptions");
-    error(keyboard_subscribe_int(&keyboard_irq_set), "Error subscribing keyboard interruptions");
+int subscribe_ints(uint8_t dispositives) {
+    if (dispositives & BIT(0))
+        error(timer_subscribe_int(&timer_irq_set), "Error subscribing timer interruptions");
+    if (dispositives & BIT(1))
+        error(keyboard_subscribe_int(&keyboard_irq_set), "Error subscribing keyboard interruptions");
     return 0;
 }
 
 /// Unsubscribe interruptions from devices
-int unsubscribe_ints() {
-    error(keyboard_unsubscribe_int(&keyboard_irq_set), "Error unsubscribing keyboard interruptions");
-    error(timer_unsubscribe_int(), "Error unsubscribing timer interruptions");
+int unsubscribe_ints(uint8_t dispositives) {
+    if (dispositives & BIT(1))
+        error(keyboard_unsubscribe_int(&keyboard_irq_set), "Error unsubscribing keyboard interruptions");
+    if (dispositives & BIT(0))
+        error(timer_unsubscribe_int(), "Error unsubscribing timer interruptions");
     return 0;
 }
