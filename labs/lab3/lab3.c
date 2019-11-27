@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "interrupts.h"
+#include "timer.h"
 #include "keyboard.h"
 #include "macros/keyboard.h"
 
@@ -52,8 +53,21 @@ int (kbd_test_poll)() {
 }
 
 int (kbd_test_timed_scan)(uint8_t n) {
-    /* To be completed by the students */
-    printf("%s is not yet implemented!\n", __func__);
-
+    subscribe_ints(TIMER | KEYBOARD);
+    uint8_t frequency = 60;
+    if(timer_set_frequency(0, frequency))
+        return 1;
+    do {
+        if (request_message())
+            continue;
+        if (received_message(TIMER)) {
+            timer_int_handler();
+        }
+        if (received_message(KEYBOARD)) {
+            keyboard_int_handler();
+            timer_reset_counter();
+        }
+    } while (keyboard_get_last_scancode() != ESC_BREAKCODE && timer_get_counter() < frequency * n);
+    unsubscribe_ints(TIMER | KEYBOARD);
     return 1;
 }

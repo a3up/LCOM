@@ -123,6 +123,10 @@ int (timer_unsubscribe_int)() {
 
 static unsigned timer_counter = 0;
 
+void timer_reset_counter(){
+    timer_counter = 0;
+}
+
 unsigned timer_get_counter() {
     return timer_counter;
 }
