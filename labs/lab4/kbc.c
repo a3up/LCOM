@@ -40,3 +40,28 @@ int kbc_read_return(uint16_t *data) {
     }
     error(true, "Max number of tries reached when trying to read output buffer");
 }
+
+int kbc_write_argument(uint32_t argument) {
+    for (char i = 0; i < MAX_TRIES; ++i) {
+        if (kbc_get_status())
+            continue;
+        if (status & FULL_IN_BUFFER) {
+            error(sys_outb(ARGUMENT_REGISTER, argument), "Error writing command to register");
+        }
+        delay(DELAY_US);
+    }
+    error(true, "Max number of tries reached when trying to write byte to mouse");
+}
+
+int kbc_write_mouse_byte(uint8_t byte) {
+    for (char i = 0; i < MAX_TRIES; ++i) {
+        kbc_write_command(WRITE_MOUSE_BYTE);
+        uint16_t acknowledgment;
+        kbc_read_return(&acknowledgment);
+        error(acknowledgment == ACKNOWLEDGMENT_ERROR, "Error when writing byte to mouse");
+        if (acknowledgment == ACKNOWLEDGMENT)
+            return 0;
+        delay(DELAY_US);
+    }
+    error(true, "Max number of tries reached when trying to write byte to mouse");
+}

@@ -6,7 +6,6 @@
 #include "interrupts.h"
 #include "timer.h"
 #include "keyboard.h"
-#include "macros/keyboard.h"
 
 int main(int argc, char *argv[]) {
     // sets the language of LCF messages (can be either EN-US or PT-PT)
