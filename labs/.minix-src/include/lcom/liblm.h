@@ -9,6 +9,7 @@
 #include <stdbool.h>
 
 #include <minix/syslib.h>
+#include <minix/type.h>
 
 #define PB2BASE(x) (((x) >> 4) & 0x0F000) // phys_bytes to segment base
 #define PB2OFF(x) ((x) & (0x0FFFF))       // phys_bytes to segment offset
@@ -27,19 +28,10 @@ typedef struct {
 /** @} end of Memory Map Struct */
 
 /**
- * @brief Initializes the low memory area, the region up to the 1 MByte physical address, by mapping it on the process' physical memory address
- * 
- * @param enable_logging set whether log messages should be printed or not
- *
- * @return virtual address on which the first 1 MB was mapped, NULL upon failure
- */
-void *lm_init(bool enable_logging);
-
-/**
  * @brief Allocates a memory block in low memory area with the specified size
  * 
  * Allocates a memory block in the region up to the 1 MByte physical address with the input size,
- *  and initializes the input mmap_t struct with the mapping information.
+ * and initializes the input mmap_t struct with the mapping information.
  * 
  * @param size size of the memory block to allocate
  * @param map pointer to mmap_t data structure, which represents the memory map
