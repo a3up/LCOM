@@ -15,7 +15,7 @@
 
 int mouse_hook_id = MOUSE_IRQ_LINE;
 
-int mouse_subscribe_int(uint8_t *bit_no) {
+int mouse_subscribe_int(uint16_t *bit_no) {
     kbc_write_mouse_byte(SET_STREAM_MODE);
     kbc_write_mouse_byte(ENABLE_DATA_REPORTING);
     *bit_no = BIT(mouse_hook_id);

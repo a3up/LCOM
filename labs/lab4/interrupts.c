@@ -13,7 +13,7 @@ message msg;
 /// IRQ sets of dispositives
 uint8_t timer_irq_set;
 uint8_t keyboard_irq_set;
-uint8_t mouse_irq_set;
+uint16_t mouse_irq_set;
 
 /// Requests message from driver
 int request_message() {
