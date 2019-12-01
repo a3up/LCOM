@@ -58,18 +58,45 @@ int read_byte() {
     uint16_t packet_byte;
     if(kbc_read_return(&packet_byte))
         return 1;
-    read_bytes[2] = read_bytes[1];
-    read_bytes[1] = read_bytes[0];
-    read_bytes[0] = (uint8_t) packet_byte;
+    read_bytes[0] = read_bytes[1];
+    read_bytes[1] = read_bytes[2];
+    read_bytes[2] = (uint8_t) packet_byte;
     return 0;
 }
 
-void mouse_int_handler() {
+bool create_packet(struct packet *pckt, uint8_t bytes[3]){
+    //if(!valid_packet(bytes))
+    //    return false;
+    for(unsigned i = 0; i < 3; ++i){
+        pckt->bytes[i] = bytes[i];
+    }
+    pckt->rb = (bytes[0] & MOUSE_RIGHT_BUTTON);
+    pckt->mb = (bytes[0] & MOUSE_MIDDLE_BUTTON);
+    pckt->lb = (bytes[0] & MOUSE_LEFT_BUTTON);
+    pckt->delta_x = bytes[1];
+    if(bytes[0] & MOUSE_MSB_X_DELTA)
+        pckt->delta_x -= 256;
+    pckt->delta_y = bytes[2];
+    if(bytes[0] & MOUSE_MSB_Y_DELTA)
+        pckt->delta_y -= 256;
+    pckt->x_ov = bytes[0] & MOUSE_X_OVERFLOW;
+    pckt->y_ov = bytes[0] & MOUSE_Y_OVERFLOW;
+    return true;
+}
+
+void display_last_packet(){
+    struct packet last_packet;
+    create_packet(&last_packet, read_bytes);
+    mouse_print_packet(&last_packet);
+}
+
+void (mouse_ih)() {
     packet_bytes_count++;
     if (read_byte())
         return;
     if(packet_bytes_count < 3)
         return;
+    display_last_packet();
     packet_bytes_count = 0;
     packet_counter++;
 }

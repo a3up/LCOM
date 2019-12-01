@@ -2,7 +2,7 @@
 
 #include "macros/mouse.h"
 
-void mouse_int_handler();
+// void mouse_int_handler();
 
 int mouse_subscribe_int(uint16_t *bit_no);
 

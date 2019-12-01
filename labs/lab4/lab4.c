@@ -4,8 +4,6 @@
 #include <stdio.h>
 
 #include "interrupts.h"
-#include "timer.h"
-#include "keyboard.h"
 #include "mouse.h"
 
 int main(int argc, char *argv[]) {
@@ -38,7 +36,7 @@ int (mouse_test_packet)(uint32_t cnt) {
         if (request_message())
             continue;
         if (received_message(MOUSE)) {
-            mouse_int_handler();
+            mouse_ih();
         }
     } while (mouse_get_packet_counter() < cnt);
     unsubscribe_ints(MOUSE);

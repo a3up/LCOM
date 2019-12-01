@@ -6,7 +6,7 @@
 ** Use VBoxManage or the VirtualBox Manager GUI to make changes.
 -->
 <VirtualBox xmlns="http://www.virtualbox.org/" version="1.15-linux">
-  <Machine uuid="{4ff4f27e-9443-48bd-be35-108a4d5a29dd}" name="minix" OSType="Other" snapshotFolder="Snapshots" lastStateChange="2019-12-01T11:23:45Z">
+  <Machine uuid="{4ff4f27e-9443-48bd-be35-108a4d5a29dd}" name="minix" OSType="Other" snapshotFolder="Snapshots" lastStateChange="2019-12-01T13:50:51Z">
     <MediaRegistry>
       <HardDisks>
         <HardDisk uuid="{d23be892-6abe-4b9d-b4b7-c6eef43ca3d1}" location="MINIX-LCOM.vdi" format="VDI" type="Normal"/>
@@ -14,7 +14,7 @@
     </MediaRegistry>
     <ExtraData>
       <ExtraDataItem name="GUI/LastCloseAction" value="PowerOff"/>
-      <ExtraDataItem name="GUI/LastNormalWindowPosition" value="400,188,720,444,max"/>
+      <ExtraDataItem name="GUI/LastNormalWindowPosition" value="351,64,720,701"/>
       <ExtraDataItem name="GUI/RestrictedStatusBarIndicators" value="FloppyDisks,USB,VideoCapture"/>
     </ExtraData>
     <Hardware>
@@ -51,7 +51,7 @@
         <SharedFolder name="shared" hostPath="/home/a3brx/LCOM/labs" writable="true" autoMount="false"/>
       </SharedFolders>
       <GuestProperties>
-        <GuestProperty name="/VirtualBox/HostInfo/GUI/LanguageID" value="en_US" timestamp="1575199425372098000" flags=""/>
+        <GuestProperty name="/VirtualBox/HostInfo/GUI/LanguageID" value="en_US" timestamp="1575208252119851000" flags=""/>
       </GuestProperties>
     </Hardware>
     <StorageControllers>

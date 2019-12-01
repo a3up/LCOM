@@ -3,7 +3,7 @@
 /// IBM's maximum kbc response time
 #define DELAY_US                20000
 #define delay(n)                tickdelay(micros_to_ticks(n))
-#define MAX_TRIES               10
+#define MAX_TRIES               3
 
 /// Kbc ports
 #define STATUS_REGISTER             0x64
